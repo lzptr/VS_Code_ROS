@@ -1,0 +1,67 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        // Use IntelliSense to learn about possible attributes.
+        // Hover to view descriptions of existing attributes.
+        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        "configurations": [
+            {
+                "name": "VS_Talker_Node",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/../../devel/lib/hello_vs_code/vs_talker",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "${workspaceFolder}/../../",
+                "environment": [],
+                "externalConsole": false,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
+            },
+            {
+                "name": "VS_Listener_Node",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/../../devel/lib/hello_vs_code/vs_listener",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "${workspaceFolder}/../../",
+                "environment": [],
+                "externalConsole": false,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
+            },
+            {
+                "name": "VS_Listener2_Node",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/../../devel/lib/hello_vs_code/vs_listener2",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "${workspaceFolder}/../../",
+                "environment": [],
+                "externalConsole": false,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
+            }
+        ]
+}

@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "ROS: Build Hello_VS_CODE",
+            "type": "shell",
+            "command": "catkin_make",
+            "args": [
+                "--pkg",
+                "hello_vs_code",
+                "-j4",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "problemMatcher": [],
+            "options": {
+				"cwd": "${workspaceFolder}/../../"
+			},
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
