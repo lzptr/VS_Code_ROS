@@ -331,7 +331,6 @@ Here are a couple of points I like about the multi-window approach:
 
 The negative side effect is that it is consuming more window space, which can 
 get cluttered on a single monitor set up.
-Altough virtual desktops can help there.
 
 Here is the complete launch.json and the tasks.json used for the global set up:
 ```
@@ -421,7 +420,7 @@ task.json (Assumes you have a VS Code workspace in your catkin root folder, e.g.
             "command": "catkin_make",
             "args": [
                 "--pkg",
-                "<your package name, e.g. hello_vs_code>",
+                "hello_vs_code",
                 "-j4",
                 "-DCMAKE_BUILD_TYPE=Debug",
             ],
@@ -459,7 +458,8 @@ Now VS Code does a pretty good job switching automatically the active session to
 
 The one thing I personally don't like, is that as soon as I step through the listener callback, the program returns to the ROS spin thread and then VS Code stays in the "Listener_Node" debug session, leaving me to manually select the talker node, to be able to step through the original node I debugged.
 
-This is obviously just a matter of personal preference, but I find having the yellow bar as a visual feedback to know where every node is (see the image in the windowed section), pretty usefull and I don't like stepping through every configuration to get back to the previous one.
+This is obviously just a matter of personal preference, but I like having the yellow bar as a visual feedback to know where every node is (see the image in the windowed section).
+And I don't like stepping through every configuration to get back to the previous one.
 This gets even worse as the number of nodes in your workspace increases, altough VS Code provides you with means to search for a debug configuration by name.
 But it's still more annoying (to me) than to just have the debug session for a particular node always active in it's own window.
 
@@ -641,7 +641,7 @@ launch.json
         ]
 }
 ```
-Since the packages are subfolders of the catkin_ws/src folder, VS Code keeps highlighting the files in the explorer tab that are also open in the editor. Most of the time it will unfold the complete catkin_ws folder in the explorer tab, to show you the file beeing edited. You can set the "explorer.autoReveal" option to false to stop VS Code to stop messing with the folders
+Since the packages are subfolders of the catkin_ws/src folder, VS Code keeps highlighting the files in the explorer tab that are also open in the editor. Most of the time it will unfold the complete catkin_ws folder in the explorer tab, to show you the file beeing edited. You can set the "explorer.autoReveal" option to false to tell VS Code to stop messing with the folders
 
 You now have a multi-root environment where every ROS package is completly self contained and you see the catkin_ws root folder. 
 This gives you full intellisense, full build flexbility and the complete debug experience previously explained.
@@ -656,7 +656,6 @@ I just copied the launch.json from the VS_CODE_ROS package to catkin_ws/.vscode 
 
 ![alt text](docs/debugConfigs.png)
 
-Notice the suffix for the different tasks right next to the name.
 You can also add a package specific task.json and enable single package building and overriding the default build task.
 Setting multiple default build tasks in a multi-root environment will force VS Code to show a searchable prompt when using the build shortcut `CTRL+SHIFT+B` and asking for a selection of the 
 task that should be run.
