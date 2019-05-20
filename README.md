@@ -1,10 +1,8 @@
 # Step By Step Integration of ROS in VS Code
 
 This repository provides an example set up that can be used to automate your ROS workflow in the VS Code IDE.
-I'm also assuming that you have ROS already installed, that you have your catkin workspace intialized and that your catkin root folder is called catkin_ws.
+I'm also assuming that you have ROS already installed, that you have your catkin workspace intialized and that your catkin root folder is called catkin_ws and that it is located in your home: ~/catkin_ws.
 Change the name to your root folder name, wherever mentioned.
-
-I'm running my machine with Ubuntu 16.04 with ROS kinetic.
 
 ## 1) VS Code Extensions
 
@@ -30,20 +28,6 @@ sudo apt-get install git -y
 ```
 
 Check with `git --version` that the newly installed version is > 2.7.
-
-### Store git credentials to use fetch and other git commands from the GitLens tab
-
-When I used GitLens with an azure devOps repo, I noticed that it failed to fetch my remote commits.
-Storing the credentials solved my problem.
-
-```
-git config --global credential.helper store
-git push
-```
-
-Type in the password when prompted. After that the credentials are stored.
-Tested with azureDevOps git repo and github repo.
-You could also just cache it for the active session. Check the git documentation for more information.
 
 ## 2) Set Up your VS Code Workspace 
 
@@ -119,8 +103,8 @@ It starts at your workspace root folder and then works down to every folder in y
 
 In a typical package folder structure like in the image below you can include your package headers from `<pacakgeName>/include/<packagename>/<name>.h` with a `#include <packageName>/<name>.h` to your node.
 
-Keep in mind that is only for intellisense. 
-Your package would still build fine when using catkin_make, regardless of what is configured in this file.
+Keep in mind that this is only for intellisense. 
+If you set up your build configuration correctly, your packages would still build fine when using catkin_make, regardless of what is configured in this file.
 
 ![alt_text](docs/FolderStructure.png)
 
@@ -216,19 +200,14 @@ You can add these additional parameters to the catkin_make task for that
 ## 5) Debugging Your Nodes
 
 Setting up a working debugging session is pretty straight forward with VS Code.
-I'll show you how to debug a single node first and build upon that to configure a multi-node debug set up.
+I'll show you how to debug a single node first and build upon that to configure a multi-node debugging set up.
 
-The following sections assume you have a hello_vs_code package in your catkin_ws/src folder, with three nodes: talker.cpp, listener.cpp, listener2.cpp, and that you built the packages.
+The following sections assume you have a hello_vs_code package in your  ~/catkin_ws/src folder, with three nodes: talker.cpp, listener.cpp, listener2.cpp, and that you built the packages.
 You can also clone this repo and build the package I am providing here.
 
 ### Debug a Single ROS Node with VS Code (C++)
 
-Add a launch configuration to the .vscode folder in the catkin_ws (launch.json) and paste this to debug the talker node.
-If you're using your own package, you have to change the path in the `program` option to point to your executable.
-Unfortunatly I haven't found a way to generate this automatically based on the catkin build system outputs.
-The ${worksspaceFolder} is the top level folder of your workspace (in this case it's catkin_ws).
-If your ${workspaceFolder} isn't the catkin root, then you also need to change the `cwd` option to point to your catkin root folder.
-More on that when we're setting up the multi-root workspace.
+Add a launch configuration (launch.json) to the .vscode folder in the catkin_ws and paste this to debug the talker node.
 
 launch.json
 ```
@@ -260,8 +239,14 @@ launch.json
     ]
 }
 ```
+If you're using your own package, you have to change the path in the `program` option to point to your executable.
+Unfortunatly I haven't found a way to generate this automatically based on the catkin build system outputs.
+Maybe it's possible by using roslaunch and then attach to the active node. 
+The ${worksspaceFolder} is the top level folder of your workspace (in this case it's catkin_ws).
+If your ${workspaceFolder} isn't the catkin root, then you also need to change the `cwd` option to point to your catkin root folder.
+More on that when we're setting up the multi-root workspace.
 
-Set a breakpoint in your node file you want to debug (in this case inside the talker.cpp).
+Set a breakpoint in your node file you want to debug (e.g. talker.cpp).
 Start the roscore by using the ROS extension.
 For that type `CTRL+SHIFT+P` and search for "ROS: Start Core" and check at the status bar that the ROS master is running. 
 You can also open up a terminal and type in `roscore`.
@@ -298,7 +283,7 @@ So lets get those up and running and see whats possible.
 The obvious thing to try, would be to just open up a new window and open the workspace we already set up (using the vscode workspace file).
 Unfortunatly this isn't (currently) possible.
 The next thing to try would be to have the **worspace** open in one VS Code instance and than open up another instance and tell VS Code to open the catkin root folder directly and not using the workspace file. 
-Both are pointing to same folder,  but internally VS Code treats them differently.
+Both are pointing to same folder, but internally VS Code treats them differently.
 This works, but you can't open the catkin root folder more than once (at least I couldn't).
 So you're left with debugging a maximum of two nodes.
 
@@ -327,9 +312,9 @@ Here are a couple of points I like about the multi-window approach:
 - Every window handles just one debugging session, getting a full responsive workflow
 - I can choose which nodes to debug, and the visual separation helps me to keep track of where every node currently is and what it is doing
 - I get a seperate local variable watch window for every node
-- I can leave every window open as long as I want while all my breakpoints are preserved. I can edit every file from any window and VS Code keeps track of everything
+- I can leave every window open as long as I want, while all my breakpoints are preserved. I can edit every file from any window and VS Code keeps track of everything
 
-The negative side effect is that it is consuming more window space, which can 
+The downside is that this approach is consuming more window space, which can 
 get cluttered on a single monitor set up.
 
 Here is the complete launch.json and the tasks.json used for the global set up:
@@ -400,7 +385,6 @@ Here is the complete launch.json and the tasks.json used for the global set up:
                 ]
             }
         ],
-         //This will be explained in the next section
          "compounds": [
             {
                 "name": "Talker/Listener",
@@ -409,7 +393,7 @@ Here is the complete launch.json and the tasks.json used for the global set up:
         ]
 }
 ```
-task.json (Assumes you have a VS Code workspace in your catkin root folder, e.g. catkin_ws)
+task.json
 ```
 {
     "version": "2.0.0",
