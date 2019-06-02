@@ -4,6 +4,14 @@ This repository provides an example set up that can be used to automate your ROS
 I'm also assuming that you have ROS already installed, that you have your catkin workspace intialized and that your catkin root folder is called catkin_ws and that it is located in your home: ~/catkin_ws.
 Change the name to your root folder name, wherever mentioned.
 
+## Contents:
+* [1. VS Code Extensions](#1-vs-code-extensions)
+* [2. Set Up your VS Code Workspace](#2-set-up-your-vs-code-workspace)
+* [3. Intellisense](#3-intellisense)
+* [4. Building Your Nodes](#4-building-your-nodes)
+* [5. Debugging Your Nodes](#5-debugging-your-nodes)
+* [6. Multi-Root ROS Workspace](#6-multi-root-ros-workspace)
+
 ## 1) VS Code Extensions
 
 I use the following extensions:
@@ -38,19 +46,19 @@ There are two environments possible with VS Code:
     globally for every package. Meaning one launch.json and one task.json for everything.
     This is the most common approach seen on the web.
 2) Use the multi-root option VS Code provides to manage each ROS package as a single project and provide individual
-    build, debug and other run tasks that are common to this folder.
+    build, debug and other run tasks that are common on a package level.
     You can then add each ROS package folder to your workspace (each with it's individual configurations) and VS Code
     will find all your launch.json and task.json files.
-    When you seach for a launch or a build configuration, VS Code will add the name of the ROS package folder to your label
+    When you search for a launch or a build configuration, VS Code will add the name of the ROS package folder to your label
     as a suffix, so you can find the configuration based on the package name.
     I personally like this approach more, because of the nice clean separation of build and debugging tasks between my packages and because this essentially make every ROS package self contained. 
     If I want to focus on a single package, I only have to start a new VS Code window and add the package to my workspace and I can start building, debugging and coding without any noise from different folders.
 
-But first let's try the first approach, since it is easier to start with.
+But first let's try the first approach and build/debug a package from a centralized configuration, since it is easier to start with.
 
 Start a VS Code instance, open the catkin_ws workspace folder and go to "File>Save Workspace As" and save the workspace file in your catkin root.
 This should add the {workspaceName}.code-workspace file and a .vscode folder to your catkin_ws root folder.  
-You should now have the following folder structure:
+You should now have the following (or a similar) folder structure:
 ```
 ~/catkin_ws
     .vscode/
@@ -172,7 +180,7 @@ You can add your own additional configurations and run them with the "Run Task" 
 Check out the VS Code documentation for more information on that.
 
 If your ROS workspace contains a lot of packages you may not want to build them all.
-You can add these additional parameters to the catkin_make task for that
+You can add these additional parameters to the catkin_make task for that:
 ```
 {
     "version": "2.0.0",
@@ -196,6 +204,8 @@ You can add these additional parameters to the catkin_make task for that
     ]
 }
 ```
+Note that catkin will still be configuring every package in the catkin-ws, but it will only build the specified one.
+You can check this by inspecting the ~/catkin_ws/devel/lib/**packagename** folder.
 
 ## 5) Debugging Your Nodes
 
@@ -294,7 +304,7 @@ The approach that worked for me, was presented in [#19793](i19793):
   
   ![alt text](docs/addWS.png)
 
-- Select the catkin root folder (in my case catkin_ws)
+- Select the catkin root folder (in my case catkin_ws), or in a multi-root setup select the ROS package folder you wan't to debug
 - Switch to the debug tab. VS Code automatically detects all launch configurations inside your new workspace
 - Set your breakpoints, select a configuration and start debugging
 - Repeat for every node you want to debug
@@ -437,7 +447,10 @@ the breakpoint beeing hit in the listener window on the right side.
   
 ![alt text](docs/talkerComp.png)
 
-Now VS Code does a pretty good job switching automatically the active session to the "Listener_Node" after i stepped over the `talker_pub.publish(...)`  code and hitting the breakpoint,  as you can see in the image below:
+Now VS Code does a pretty good job switching automatically the session where a breakpoint was hit
+(see the image below).
+This also aplies to the multi-window approach.
+VS-Code automatically switches the window to the one where a breakpoint was hit.
 ![alt text](docs/listenerComp.png)
 
 The one thing I personally don't like, is that as soon as I step through the listener callback, the program returns to the ROS spin thread and then VS Code stays in the "Listener_Node" debug session, leaving me to manually select the talker node, to be able to step through the original node I debugged.
@@ -447,7 +460,7 @@ And I don't like stepping through every configuration to get back to the previou
 This gets even worse as the number of nodes in your workspace increases, altough VS Code provides you with means to search for a debug configuration by name.
 But it's still more annoying (to me) than to just have the debug session for a particular node always active in it's own window.
 
-## 6) VS Code Tasks & Launch Configurations Management
+## 6) Multi-Root ROS Workspace
 
 Ok so now we have a global task.json, launch.json and c_cpp_properties.json sitting in our catkin root folder.
 Since it is local, we don't disturbe any settings of other users when publishing the package.
@@ -474,8 +487,8 @@ Or to be more exact, when the parent folder sits above the child folder in the d
 It seems that the intellisense indexer traverses the folder in the order we add them to the workspace.
 If for example you start a fresh VS Code instance and you add a ROS package (e.g. VS_Code_ROS) as a folder to your workspace and then add the catkin_ws folder as **the last** folder to your workspace, everything works as expected.
 If you do it the other way around, then intellisense breaks in the child folder.
-Actually  you can just move the catkin_ws folder to the last position in the explorer tab most of the time it works again.
-Sometimes I need to restart VS Code so the fastest way is to remove the catkin_ws folder and readd it. 
+Actually  you can just move the catkin_ws folder to the last position in the explorer tab and most of the time it works again.
+But the most reliable (and fastest way) is to remove the catkin_ws folder and readd it, after you added all your child folders to the workspace. 
 
 So here is my working set up:
 
@@ -486,8 +499,8 @@ Here is an example workspace with only the VS_Code_ROS package added:
 ![alt text](docs/addFolder.png)
 - Add a .vscode folder at the package root folder. This enables VS Code to find the launch configuration for every folder you add to your workspace
 - Add a taks.json, c_cpp_properties.json and launch.json configuration file to the .vscode folder and add your package specific configurations (see the .vscode folder in the VS_CODE_ROS package in the image above)
-- Add your catkin_ws folder last (or move it to the last position).
-    When adding new packages to your workspace, you need the move catkin_ws folder again to the last position and occasionally rebuild the intellisense (usually it just works)
+- Add your catkin_ws folder last.
+    When adding new packages to your workspace, you need the remove and readd your catkin_ws folder 
 - Since we now have multiple workspace folders in VS Code we need to tell it where to find our include folders, executables and where the catkin_ws root folder is.
   We can do this using relative paths.
   Remember the ${workspaceFolder} is now different for every folder you add to your workspace, because of the multi-root environment.
@@ -625,10 +638,13 @@ launch.json
         ]
 }
 ```
-Since the packages are subfolders of the catkin_ws/src folder, VS Code keeps highlighting the files in the explorer tab that are also open in the editor. Most of the time it will unfold the complete catkin_ws folder in the explorer tab, to show you the file beeing edited. You can set the "explorer.autoReveal" option to false to tell VS Code to stop messing with the folders
+Since the packages are subfolders of the catkin_ws/src folder, VS Code keeps highlighting the files in the explorer tab that are also open in the editor. Most of the time it will unfold the complete catkin_ws folder in the explorer tab, to show you the file beeing edited. You can set the "explorer.autoReveal" option to false to tell VS Code to stop messing with the folders.
 
 You now have a multi-root environment where every ROS package is completly self contained and you see the catkin_ws root folder. 
 This gives you full intellisense, full build flexbility and the complete debug experience previously explained.
+To debug multiple nodes/packages in a multi window set up, you just need to open a new window and add
+the self-contained ROS packages you want to debug to your new (temporary) workspace (as described in the [Seperate Window Approach](#the-separate-window-approach-(recommended))).
+
 I also use this "trick", when I want to focus on one single package. 
 This gives me a clean look on this single folder, while still providing the full build and debugging experience.
 You can always add and remove any package folder from your workspace without losing anything.
