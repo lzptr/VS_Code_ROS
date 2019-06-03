@@ -7,7 +7,7 @@
             },
             "includePath": [
                 "/opt/ros/kinetic/include",
-                "/usr/include",
+                "/usr/include/**",
                 "${workspaceFolder}/../../devel/include",
                 "${workspaceFolder}/**"
             ],

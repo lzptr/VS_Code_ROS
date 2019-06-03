@@ -86,7 +86,7 @@ c_cpp_properties.json
             "includePath": [
                 "${workspaceFolder}/devel/include",
                 "/opt/ros/kinetic/include",
-                "/usr/include",
+                "/usr/include/**",
                 "${workspaceFolder}/**"
             ],
             "intelliSenseMode": "gcc-x64",
@@ -126,7 +126,7 @@ If you're on a Mac you might want to use clang:
             "includePath": [
                 "${workspaceFolder}//devel/include",
                 "/opt/ros/kinetic/include",
-                "/usr/include",
+                "/usr/include/**",
                 "${workspaceFolder}/**"
             ],
             "intelliSenseMode": "clang-x64",
@@ -521,7 +521,7 @@ c_cpp_properties.json
             "includePath": [
                 "${workspaceFolder}/../../devel/include",
                 "/opt/ros/kinetic/include",
-                "/usr/include",
+                "/usr/include/**",
                 "${workspaceFolder}/**"
             ],
             "intelliSenseMode": "gcc-x64",
