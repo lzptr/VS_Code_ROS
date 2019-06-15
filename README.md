@@ -1,8 +1,7 @@
 # Step By Step Integration of ROS in VS Code
 
 This repository provides an example set up that can be used to automate your ROS workflow in the VS Code IDE.
-I'm also assuming that you have ROS already installed, that you have your catkin workspace intialized and that your catkin root folder is called catkin_ws and that it is located in your home: ~/catkin_ws.
-Change the name to your root folder name, wherever mentioned.
+
 
 ## Contents:
 * [1. VS Code Extensions](#1-vs-code-extensions)
@@ -40,7 +39,7 @@ Check with `git --version` that the newly installed version is > 2.7.
 ## 2) Set Up your VS Code Workspace 
 
 Assuming your catkin workspace is all set up and running smoothly, we need to tell VS Code where our ROS workspace is.
-There are two environments possible with VS Code:
+This can be accomplished in two ways:
 1) Open the catkin root folder in VS Code and use the complete catkin folder as your workspace.
     This is a centralized ROS package management approach, where you get to see every ROS package and where you have to manage your configurations
     globally for every package. Meaning one launch.json and one task.json for everything.
@@ -49,10 +48,9 @@ There are two environments possible with VS Code:
     build, debug and other run tasks that are common on a package level.
     You can then add each ROS package folder to your workspace (each with it's individual configurations) and VS Code
     will find all your launch.json and task.json files.
-    When you search for a launch or a build configuration, VS Code will add the name of the ROS package folder to your label
+    When you search for a launch or a build configuration, VS Code will also add the name of the ROS package folder to your label
     as a suffix, so you can find the configuration based on the package name.
     I personally like this approach more, because of the nice clean separation of build and debugging tasks between my packages and because this essentially make every ROS package self contained. 
-    If I want to focus on a single package, I only have to start a new VS Code window and add the package to my workspace and I can start building, debugging and coding without any noise from different folders.
 
 But first let's try the first approach and build/debug a package from a centralized configuration, since it is easier to start with.
 
