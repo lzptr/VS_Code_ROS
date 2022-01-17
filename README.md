@@ -7,22 +7,24 @@ This repository provides an example set up that can be used to automate your ROS
 * [1. VS Code Extensions](#1-vs-code-extensions)
 * [2. Set Up your VS Code Workspace](#2-set-up-your-vs-code-workspace)
 * [3. Intellisense](#3-intellisense)
-* [4. Building Your Nodes](#4-building-your-nodes)
-* [5. Debugging Your Nodes](#5-debugging-your-nodes)
-* [6. Multi-Root ROS Workspace](#6-multi-root-ros-workspace)
+* [4. Create your Package](#4-create-your-package)
+* [5. Building Your Nodes](#5-building-your-nodes)
+* [6. Debugging Your Nodes](#6-debugging-your-nodes)
+* [7. Multi-Root ROS Workspace](#7-multi-root-ros-workspace)
 
 ## 1) VS Code Extensions
 
 I use the following extensions:
 
-- C/C++ (c++ intellisense and configuration help)
-- CMake (Intellisense support in CMakeLists.txt files)
-- CMake Tools (Extended CMake support in Visual Studio Code)
-- GitLens (Git support and additional git tab)
-- Python (If you're using rospy)
-- vscode-icons (Optional, but helps with all the different file types used by ROS)
-- ROS (Adds helper actions for starting the roscore, for creating ROS packages and provides syntax highlighting for .msg, .urdf and other ROS files)
+- C/C++ (c++ intellisense and configuration help) -> Mandatory
+- Clangd (Alternative intellisense provider. C/C++ intellisense needs to be disabled for this one to work) -> Optional
+- CMake (Intellisense support in CMakeLists.txt files) -> Optional
+- GitLens (Git support and additional git tab) -> Optional
+- Python (If you're using rospy) -> Mandatory
+- vscode-icons (Optional, but helps with all the different file types used by ROS) -> Optional
+- ROS (Adds helper actions for starting the roscore, for creating ROS packages and provides syntax highlighting for .msg, .urdf and other ROS files) -> Mandatory (Needed for the catkin_make task type)
  
+If you clone this repo, then VS Code will ask you if you want to install the recommended extensions.
 
 ### GitLens has a problem with git versions <= 2.7. Update git on Ubuntu 16.04
 
@@ -37,6 +39,30 @@ sudo apt-get install git -y
 Check with `git --version` that the newly installed version is > 2.7.
 
 ## 2) Set Up your VS Code Workspace 
+
+### Install ROS
+
+If you haven't installed ROS yet, then install it now.
+Here is the official documentation for ROS noetic for Ubuntu: http://wiki.ros.org/noetic/Installation/Ubuntu
+
+Here's a quick wrap up (tested on Windows 11 with WSL2 - Ubuntu Distro):
+```
+$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+$ curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+$ sudo apt update
+$ sudo apt install ros-noetic-desktop-full
+$ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+$ source ~/.bashrc
+$ sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+$ sudo apt install python3-rosdep
+$ sudo rosdep init
+$ rosdep update
+$ mkdir -p ~/catkin_ws/src
+$ cd ~/catkin_ws/
+$ catkin_make
+```
+
+### Set Up the VS Code Workspace
 
 Assuming your catkin workspace is all set up and running smoothly, we need to tell VS Code where our ROS workspace is.
 This can be accomplished in two ways:
@@ -68,8 +94,16 @@ You should now have the following (or a similar) folder structure:
 
 ## 3) Intellisense
 
+### C/C++ Extension
+
 To add intellisense support for ROS nodes we need to provide a c_cpp_properties.json in our .vscode folder.
-This is used by the C/C++ Extension to search for all the include folders that are referenced by the node.
+This is used by the C/C++ Extension to provide autocompletion.
+For this work, one piece is still missing. It needs to know about te project dependencies and where
+to find them. 
+CMake is able to provide this info through the help of a compile_commands.json file.
+The generate this file, we need to add the "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" compile option to catkin_make.
+The next section explains how we can automate this through the use of vscode tasks.  
+
 
 c_cpp_properties.json
 ```
@@ -77,60 +111,10 @@ c_cpp_properties.json
     "configurations": [
         {
             "name": "Linux",
-            "browse": {
-                "databaseFilename": "",
-                "limitSymbolsToIncludedHeaders": true
-            },
-            "includePath": [
-                "${workspaceFolder}/devel/include",
-                "/opt/ros/kinetic/include",
-                "/usr/include/**",
-                "${workspaceFolder}/**"
-            ],
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c11",
             "cppStandard": "c++17"
-        }
-    ],
-    "version": 4
-}
-```
-
-The most import option is the `includePath`.
-It points the intellisense tools to the right folders.
-The first line is the path to the catkin devel includes, that include generated headers for your .srv and .msg files.
-You can access them with `#include  "<pacakgeName>/<msg_srv_name>.h` in your nodes.
-The second include is the path to the ros headers (ros.h etc.).
-The last line is a recursive pattern that VS Code unterstands.
-It starts at your workspace root folder and then works down to every folder in your workspace folder.
- In the global management environment it's the ~/catkin_ws folder. 
- In the multi-root environment it's the ROS package root folder you added as a folder to your workspace.
-
-In a typical package folder structure like in the image below you can include your package headers from `<pacakgeName>/include/<packagename>/<name>.h` with a `#include <packageName>/<name>.h` to your node.
-
-Keep in mind that this is only for intellisense. 
-If you set up your build configuration correctly, your packages would still build fine when using catkin_make, regardless of what is configured in this file.
-
-![alt_text](docs/FolderStructure.png)
-
-
-If you're on a Mac you might want to use clang:
-```
-{
-    "configurations": [
-        {
-            "name": "Mac",
-            "includePath": [
-                "${workspaceFolder}//devel/include",
-                "/opt/ros/kinetic/include",
-                "/usr/include/**",
-                "${workspaceFolder}/**"
-            ],
-            "intelliSenseMode": "clang-x64",
-            "compilerPath": "/usr/bin/clang++",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],
@@ -138,28 +122,63 @@ If you're on a Mac you might want to use clang:
 }
 ```
 
+### Clangd Extension
 
-You can also combine both in the same file, and select your environment.
-Check out the documentation for more info on that.
+VSCode has another option to provide intellisense for C++ code.
+You could use the clangd extension that comes with support for the clang compiler.
+In my opinion, the intellisense is better and provides some neat extra functions
+like find all references.
+But it is more of a hassle to set up.
 
-## 4) Building Your Nodes
+For this to work, you need to install the clangd extension and install the 
+clangd language server that the extension prompts you to.
+After the disable the C/C++ extension intellisense
+and tell the clangd extension where to find the compile_commands.json.
+Open up your user settings and paste this:
+```
+"clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}/build",
+    "--completion-style=detailed",
+    "--clang-tidy",
+    "--clang-tidy-checks=-*,modernize*",
+    "--header-insertion=never"
+],
+"C_Cpp.intelliSenseEngine": "Disabled",
+```
+
+This should set up clangd for intellisense.
+But you will still build and debug using the C/C++ extension.
+
+## 4) Create Your Package
+TBD
+
+## 5) Building Your Nodes
 
 You should now have a VS Code workspace set up in your catkin workspace root.
-To build the ROS nodes we need to add a build task configuration.
+
+The easiest way is to use the build task provided by the ROS extension named:
+catkin_make: build.
+You can run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "ROS: catkin_make: build" task.
+But that task comes without the compile_commands.json file needed for
+intellisense to work.
+
+We add our own build task configuration.
 Add the following task.json to the folder ~/catkin_ws/.vscode:
 ```
 {
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "ROS: catkin_make",
-            "type": "shell",
-            "command": "catkin_make",
+            "label": "ROS: central_catkin_make",
+            "type": "catkin_make",
             "args": [
+                "--directory",
+				"<path-to-your-catkin-ws>/catkin_ws",
                 "-j4",
-                "-DCMAKE_BUILD_TYPE=Debug"
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
             ],
-            "problemMatcher": [],
+            "problemMatcher": "$catkin-gcc",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -171,29 +190,29 @@ Add the following task.json to the folder ~/catkin_ws/.vscode:
 
 You can now run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "ROS: catkin_make" task we configured. Since we set it to be the default build task with the `group` option you can also run that task with the shortcut `CTRL+SHIFT+B`. 
 The build type is set to "Debug", so that the ROS nodes can be debugged later on.
-If you need a "compile_commands.json" for clang, you can add    "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" as an additional argument to the `args` option.
-This will generate a compile_commands in the ~/catkin_ws/build folder that you can reference in the c_cpp_properties.json file.
 
 You can add your own additional configurations and run them with the "Run Task" action, or provide your own keybindings for your own build configurations.
 Check out the VS Code documentation for more information on that.
 
 If your ROS workspace contains a lot of packages you may not want to build them all.
-You can add these additional parameters to the catkin_make task for that:
+You can add these additional parameters to the task for that:
 ```
 {
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "ROS: catkin_make",
-            "type": "shell",
-            "command": "catkin_make",
+            "label": "ROS: central_catkin_make",
+            "type": "catkin_make",
             "args": [
+                "--directory",
+				"<path-to-your-catkin-ws>/catkin_ws",
                 "--pkg",
                 "<your package name, e.g. hello_vs_code>",
                 "-j4",
-                "-DCMAKE_BUILD_TYPE=Debug"
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
             ],
-            "problemMatcher": [],
+            "problemMatcher": "$catkin-gcc",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -205,7 +224,7 @@ You can add these additional parameters to the catkin_make task for that:
 Note that catkin will still be configuring every package in the catkin-ws, but it will only build the specified one.
 You can check this by inspecting the ~/catkin_ws/devel/lib/**packagename** folder.
 
-## 5) Debugging Your Nodes
+## 6) Debugging Your Nodes
 
 Setting up a working debugging session is pretty straight forward with VS Code.
 I'll show you how to debug a single node first and build upon that to configure a multi-node debugging set up.

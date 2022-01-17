@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+		"eamodio.gitlens",
+        "ms-iot.vscode-ros",
+        "ms-python.python",
+        "ms-vscode.cpptools",
+        "twxs.cmake",
+        "vscode-icons-team.vscode-icons"
+	]
+}

@@ -3,26 +3,20 @@
     "tasks": [
         {
             "label": "ROS: Build Hello_VS_CODE",
-            "type": "shell",
-            "command": "catkin_make",
+            "type": "catkin_make",
             "args": [
+                "--directory",
+				"~/projects/catkin_ws",
                 "--pkg",
                 "hello_vs_code",
                 "-j4",
-                "-DCMAKE_BUILD_TYPE=Debug"
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
             ],
-            "problemMatcher": "$gcc",
-            "options": {
-				"cwd": "${workspaceFolder}/../../"
-			},
+            "problemMatcher": "$catkin-gcc",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "presentation": {
-                "reveal": "always",
-                "revealProblems": "onProblem",
-                "panel": "new"
             }
         }
     ]
