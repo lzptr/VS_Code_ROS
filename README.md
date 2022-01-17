@@ -159,7 +159,7 @@ You should now have a VS Code workspace set up in your catkin workspace root.
 
 The easiest way is to use the build task provided by the ROS extension named:
 catkin_make: build.
-You can run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "ROS: catkin_make: build" task.
+You can run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "catkin_make: build" task.
 But that task comes without the compile_commands.json file needed for
 intellisense to work.
 
