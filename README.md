@@ -96,13 +96,12 @@ You should now have the following (or a similar) folder structure:
 
 ### C/C++ Extension
 
-To add intellisense support for ROS nodes we need to provide a c_cpp_properties.json in our .vscode folder.
+To add intellisense support for ROS nodes, we need to provide a c_cpp_properties.json in our .vscode folder.
 This is used by the C/C++ Extension to provide autocompletion.
-For this work, one piece is still missing. It needs to know about te project dependencies and where
-to find them. 
+For this to work, one piece is still missing. It needs to know about te project dependencies and where to find them. 
 CMake is able to provide this info through the help of a compile_commands.json file.
 The generate this file, we need to add the "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" compile option to catkin_make.
-The next section explains how we can automate this through the use of vscode tasks.  
+Section 5 explains how we can automate the creation of the file through the use of vscode tasks.  
 
 
 c_cpp_properties.json
@@ -134,7 +133,7 @@ For this to work, you need to install the clangd extension and install the
 clangd language server that the extension prompts you to.
 After the disable the C/C++ extension intellisense
 and tell the clangd extension where to find the compile_commands.json.
-Open up your user settings and paste this:
+Open up your global vs code user settings and paste this:
 ```
 "clangd.arguments": [
     "--compile-commands-dir=${workspaceFolder}/build",
@@ -146,7 +145,9 @@ Open up your user settings and paste this:
 "C_Cpp.intelliSenseEngine": "Disabled",
 ```
 
-This should set up clangd for intellisense.
+This should set up clangd as a intellisense provider for all your project.
+If you only want to activate it for this workspace, you could add a settings.json file to your
+catkin workspace inside the centralized .vscode folder.
 But you will still build and debug using the C/C++ extension.
 
 ## 4) Create Your Package
