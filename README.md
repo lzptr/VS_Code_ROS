@@ -163,7 +163,7 @@ You can run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "catkin_
 But that task comes without the compile_commands.json file needed for
 intellisense to work.
 
-We add our own build task configuration.
+We can add our own build task configuration.
 Add the following task.json to the folder ~/catkin_ws/.vscode:
 ```
 {
@@ -189,7 +189,7 @@ Add the following task.json to the folder ~/catkin_ws/.vscode:
 }
 ```
 
-You can now run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "ROS: catkin_make" task we configured. Since we set it to be the default build task with the `group` option you can also run that task with the shortcut `CTRL+SHIFT+B`. 
+You can now run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "ROS: central_catkin_make" task we configured. Since we set it to be the default build task with the `group` option you can also run that task with the shortcut `CTRL+SHIFT+B`. 
 The build type is set to "Debug", so that the ROS nodes can be debugged later on.
 
 You can add your own additional configurations and run them with the "Run Task" action, or provide your own keybindings for your own build configurations.
