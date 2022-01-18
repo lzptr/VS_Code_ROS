@@ -8,8 +8,8 @@ This repository provides an example set up that can be used to automate your ROS
 * [2. Set Up your VS Code Workspace](#2-set-up-your-vs-code-workspace)
 * [3. Intellisense](#3-intellisense)
 * [4. Create your Package](#4-create-your-package)
-* [5. Building Your Nodes](#5-building-your-nodes)
-* [6. Debugging Your Nodes](#6-debugging-your-nodes)
+* [5. Building Your Nodes (Global Workspace)](#5-building-your-nodes-global-workspace)
+* [6. Debugging Your Nodes (Global Workspace)](#6-debugging-your-nodes-global-workspace)
 * [7. Multi-Root ROS Workspace](#7-multi-root-ros-workspace)
 
 ## 1) VS Code Extensions
@@ -100,7 +100,7 @@ To add intellisense support for ROS nodes, we need to provide a c_cpp_properties
 This is used by the C/C++ Extension to provide autocompletion.
 For this to work, one piece is still missing. It needs to know about te project dependencies and where to find them. 
 CMake is able to provide this info through the help of a compile_commands.json file.
-The generate this file, we need to add the "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" compile option to catkin_make.
+To generate this file, we need to add the "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" compile option to catkin_make.
 Section 5 explains how we can automate the creation of the file through the use of vscode tasks.  
 
 
@@ -123,7 +123,7 @@ c_cpp_properties.json
 
 ### Clangd Extension
 
-VSCode has another option to provide intellisense for C++ code.
+VS Code has another option to provide intellisense for C++ code.
 You could use the clangd extension that comes with support for the clang compiler.
 In my opinion, the intellisense is better and provides some neat extra functions
 like find all references.
@@ -131,7 +131,7 @@ But it is more of a hassle to set up.
 
 For this to work, you need to install the clangd extension and install the 
 clangd language server that the extension prompts you to.
-After the disable the C/C++ extension intellisense
+After that, disable the C/C++ extension intellisense
 and tell the clangd extension where to find the compile_commands.json.
 Open up your global vs code user settings and paste this:
 ```
@@ -148,12 +148,30 @@ Open up your global vs code user settings and paste this:
 This should set up clangd as a intellisense provider for all your project.
 If you only want to activate it for this workspace, you could add a settings.json file to your
 catkin workspace inside the centralized .vscode folder.
-But you will still build and debug using the C/C++ extension.
+But be aware that if you install both extensions, only one intellisense provider is allowed
+to be active.
 
 ## 4) Create Your Package
-TBD
 
-## 5) Building Your Nodes
+ROS package source code needs to be in the catkin_ws/src folder.
+You can clone this repository to your catkin_ws if you need a project to get started.
+After that you should have the following folder structure:
+```
+~/catkin_ws
+    .vscode/
+    build/
+    devel/
+    src/
+        VS_Code_ROS/
+            .vscode/
+            docs/
+            hello_vs_code/
+                src/
+                CMakeLists.txt
+                package.xml
+    ROS_WS.code-workspace
+```
+## 5) Building Your Nodes (Global Workspace)
 
 You should now have a VS Code workspace set up in your catkin workspace root.
 
@@ -174,7 +192,7 @@ Add the following task.json to the folder ~/catkin_ws/.vscode:
             "type": "catkin_make",
             "args": [
                 "--directory",
-				"<path-to-your-catkin-ws>/catkin_ws",
+				"<path-to-your-catkin-ws>",
                 "-j4",
                 "-DCMAKE_BUILD_TYPE=Debug",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
@@ -188,6 +206,13 @@ Add the following task.json to the folder ~/catkin_ws/.vscode:
     ]
 }
 ```
+
+Notice that the type of the task is "catkin_make". This is provided by the 
+ROS extension. 
+I couldn't get a typical shell type task to work with the catkin_make command,
+when issuing it out of a multi-root workspace.
+This workaround works pretty well, but it also means that you have to install
+the ROS extension.
 
 You can now run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "ROS: central_catkin_make" task we configured. Since we set it to be the default build task with the `group` option you can also run that task with the shortcut `CTRL+SHIFT+B`. 
 The build type is set to "Debug", so that the ROS nodes can be debugged later on.
@@ -206,7 +231,7 @@ You can add these additional parameters to the task for that:
             "type": "catkin_make",
             "args": [
                 "--directory",
-				"<path-to-your-catkin-ws>/catkin_ws",
+				"<path-to-your-catkin-ws>",
                 "--pkg",
                 "<your package name, e.g. hello_vs_code>",
                 "-j4",
@@ -225,12 +250,12 @@ You can add these additional parameters to the task for that:
 Note that catkin will still be configuring every package in the catkin-ws, but it will only build the specified one.
 You can check this by inspecting the ~/catkin_ws/devel/lib/**packagename** folder.
 
-## 6) Debugging Your Nodes
+## 6) Debugging Your Nodes (Global Workspace)
 
 Setting up a working debugging session is pretty straight forward with VS Code.
 I'll show you how to debug a single node first and build upon that to configure a multi-node debugging set up.
 
-The following sections assume you have a hello_vs_code package in your  ~/catkin_ws/src folder, with three nodes: talker.cpp, listener.cpp, listener2.cpp, and that you built the packages.
+The following sections assume you have a hello_vs_code package somewhere in your  ~/catkin_ws/src folder, with three nodes: talker.cpp, listener.cpp, listener2.cpp, and that you built the packages.
 You can also clone this repo and build the package I am providing here.
 
 ### Debug a Single ROS Node with VS Code (C++)
@@ -270,13 +295,14 @@ launch.json
 If you're using your own package, you have to change the path in the `program` option to point to your executable.
 Unfortunatly I haven't found a way to generate this automatically based on the catkin build system outputs.
 Maybe it's possible by using roslaunch and then attach to the active node. 
-The ${worksspaceFolder} is the top level folder of your workspace (in this case it's catkin_ws).
-If your ${workspaceFolder} isn't the catkin root, then you also need to change the `cwd` option to point to your catkin root folder.
+
+The \${workspaceFolder} is the top level folder of your workspace (in this case it's catkin_ws).
+If your \${workspaceFolder} isn't the catkin root, then you also need to change the `cwd` option to point to your catkin root folder.
 More on that when we're setting up the multi-root workspace.
 
 Set a breakpoint in your node file you want to debug (e.g. talker.cpp).
 Start the roscore by using the ROS extension.
-For that type `CTRL+SHIFT+P` and search for "ROS: Start Core" and check at the status bar that the ROS master is running. 
+For that type `CTRL+SHIFT+P` and search for "ROS: Start" and check at the status bar that the ROS master is running. 
 You can also open up a terminal and type in `roscore`.
 
 Press F5 to launch the debugging session and make sure that you build
@@ -287,8 +313,7 @@ After that you can step through your node like in the example below:
 ![alt text](docs/talkerDebug.png)
 
 
-The "`poll failed with ...`" error message is due to a bug in
-the current ros_comm module. See issue [#1370][i1370] for updates.
+
 
 ### Debug Multiple ROS Nodes with VS Code (C++)
 
@@ -421,30 +446,6 @@ Here is the complete launch.json and the tasks.json used for the global set up:
         ]
 }
 ```
-task.json
-```
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "ROS: catkin_make",
-            "type": "shell",
-            "command": "catkin_make",
-            "args": [
-                "--pkg",
-                "hello_vs_code",
-                "-j4",
-                "-DCMAKE_BUILD_TYPE=Debug",
-            ],
-            "problemMatcher": [],
-            "group": {
-                "kind": "build",
-                "isDefault": true 
-            }
-        }
-    ]
-}
-```
 
 #### The Compound Approach 
 
@@ -478,7 +479,7 @@ And I don't like stepping through every configuration to get back to the previou
 This gets even worse as the number of nodes in your workspace increases, altough VS Code provides you with means to search for a debug configuration by name.
 But it's still more annoying (to me) than to just have the debug session for a particular node always active in it's own window.
 
-## 6) Multi-Root ROS Workspace
+## 7) Multi-Root ROS Workspace
 
 Ok so now we have a global task.json, launch.json and c_cpp_properties.json sitting in our catkin root folder.
 Since it is local, we don't disturbe any settings of other users when publishing the package.
