@@ -5,9 +5,9 @@ This repository provides an example set up that can be used to automate your ROS
 
 ## Contents:
 * [1. VS Code Extensions](#1-vs-code-extensions)
-* [2. Set Up your VS Code Workspace](#2-set-up-your-vs-code-workspace)
+* [2. Set Up Your VS Code Workspace](#2-set-up-your-vs-code-workspace)
 * [3. Intellisense](#3-intellisense)
-* [4. Create your Package](#4-create-your-package)
+* [4. Create Your Package](#4-create-your-package)
 * [5. Building Your Nodes (Global Workspace)](#5-building-your-nodes-global-workspace)
 * [6. Debugging Your Nodes (Global Workspace)](#6-debugging-your-nodes-global-workspace)
 * [7. Multi-Root ROS Workspace](#7-multi-root-ros-workspace)
@@ -24,7 +24,7 @@ I use the following extensions:
 - vscode-icons (Optional, but helps with all the different file types used by ROS) -> Optional
 - ROS (Adds helper actions for starting the roscore, for creating ROS packages and provides syntax highlighting for .msg, .urdf and other ROS files) -> Mandatory (Needed for the catkin_make task type)
  
-If you clone this repo, then VS Code will ask you if you want to install the recommended extensions.
+If you clone this repo, and open the folder in a new VS Code instance, then VS Code will ask you if you want to install the recommended extensions.
 
 ### GitLens has a problem with git versions <= 2.7. Update git on Ubuntu 16.04
 
@@ -98,11 +98,11 @@ You should now have the following (or a similar) folder structure:
 
 To add intellisense support for ROS nodes, we need to provide a c_cpp_properties.json in our .vscode folder.
 This is used by the C/C++ Extension to provide autocompletion.
-For this to work, one piece is still missing. It needs to know about te project dependencies and where to find them. 
+For this to work, it needs to know about te project dependencies and where to find them. 
 CMake is able to provide this info through the help of a compile_commands.json file.
 To generate this file, we need to add the "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" compile option to catkin_make.
 Section 5 explains how we can automate the creation of the file through the use of vscode tasks.  
-
+For know add this file to your .vscode folder.
 
 c_cpp_properties.json
 ```
@@ -145,11 +145,11 @@ Open up your global vs code user settings and paste this:
 "C_Cpp.intelliSenseEngine": "Disabled",
 ```
 
-This should set up clangd as a intellisense provider for all your project.
+This should set up clangd as a intellisense provider for all your projects.
 If you only want to activate it for this workspace, you could add a settings.json file to your
 catkin workspace inside the centralized .vscode folder.
 But be aware that if you install both extensions, only one intellisense provider is allowed
-to be active.
+to be active globally. So you need to disable one intellisense provider globally.
 
 ## 4) Create Your Package
 
@@ -176,13 +176,15 @@ After that you should have the following folder structure:
 You should now have a VS Code workspace set up in your catkin workspace root.
 
 The easiest way is to use the build task provided by the ROS extension named:
-catkin_make: build.
+"catkin_make: build".
 You can run `CTRL+SHIFT+P`, search for "Tasks: Run Task" and select the "catkin_make: build" task.
 But that task comes without the compile_commands.json file needed for
 intellisense to work.
 
 We can add our own build task configuration.
 Add the following task.json to the folder ~/catkin_ws/.vscode:
+
+tasks.json
 ```
 {
     "version": "2.0.0",
@@ -319,7 +321,7 @@ After that you can step through your node like in the example below:
 
 Since ROS uses the publisher/subscriber and request/response models, it's usually more interresting to debug multiple nodes that are interconnected through the ROS master.
 The `configurations` option in the launch.json shown above is actually an array. 
-You add multiple debug configurations by adding them to it.
+You can add multiple debug configurations to it, by adding them to this array.
 But how do you use these configurations to actually start multiple debugging sessions?
 
 There are currently three ways (known to me):
