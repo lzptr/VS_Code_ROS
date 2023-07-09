@@ -342,13 +342,10 @@ Both are pointing to same folder, but internally VS Code treats them differently
 This works, but you can't open the catkin root folder more than once (at least I couldn't).
 So you're left with debugging a maximum of two nodes.
 
-The approach that worked for me, was presented in [#19793](i19793):
+Here is the approach I am using to have as many windows as I want for debugging code from the same folder:
 
 - Launch a new VS Code window
-- Use the "Add Workspace Folder" action 
-  
-  ![alt text](docs/addWS.png)
-
+- Use the "Workspaces: Add Workspace Folder" command, found in the vs code editor commands (CTRL+SHIFT+P)
 - Select the catkin root folder (in my case catkin_ws), or in a multi-root setup select the ROS package folder you wan't to debug
 - Switch to the debug tab. VS Code automatically detects all launch configurations inside your new workspace
 - Set your breakpoints, select a configuration and start debugging
