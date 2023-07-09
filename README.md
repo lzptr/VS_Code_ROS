@@ -102,7 +102,7 @@ For this to work, it needs to know about te project dependencies and where to fi
 CMake is able to provide this info through the help of a compile_commands.json file.
 To generate this file, we need to add the "-DCMAKE_EXPORT_COMPILE_COMMANDS=1" compile option to catkin_make.
 Section 5 explains how we can automate the creation of the file through the use of vscode tasks.  
-For know add this file to your .vscode folder.
+For now add this file to your .vscode folder.
 
 c_cpp_properties.json
 ```
